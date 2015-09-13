@@ -22,8 +22,7 @@
 
 #include <string>
 
-#include <gtk/gtkwidget.h>
-#include <gtk/gtkwindow.h>
+#include <gtk/gtk.h>
 
 #include <ZLProgressDialog.h>
 

@@ -17,7 +17,7 @@
  * 02110-1301, USA.
  */
 
-#include <gtk/gtkfilechooserdialog.h>
+#include <gtk/gtk.h>
 
 #include <ZLDialogManager.h>
 #include <ZLFile.h>

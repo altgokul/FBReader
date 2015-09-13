@@ -17,9 +17,8 @@
  * 02110-1301, USA.
  */
 
-#include <gtk/gtkmain.h>
-#include <gtk/gtklabel.h>
-#include <gdk/gdkcursor.h>
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
 
 #include "ZLGtkProgressDialog.h"
 

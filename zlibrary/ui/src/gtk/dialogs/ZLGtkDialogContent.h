@@ -22,7 +22,7 @@
 
 #include <map>
 
-#include <gtk/gtktable.h>
+#include <gtk/gtk.h>
 
 #include <ZLDialogContent.h>
 

@@ -22,8 +22,7 @@
 
 #include <vector>
 
-#include <gtk/gtkdialog.h>
-#include <gtk/gtknotebook.h>
+#include <gtk/gtk.h>
 
 #include "../../../../core/src/desktop/dialogs/ZLDesktopOptionsDialog.h"
 

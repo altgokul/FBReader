@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include <gtk/gtkdialog.h>
+#include <gtk/gtk.h>
 
 #include <ZLResource.h>
 

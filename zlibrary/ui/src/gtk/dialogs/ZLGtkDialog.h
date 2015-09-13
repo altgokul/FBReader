@@ -20,7 +20,7 @@
 #ifndef __ZLGTKDIALOG_H__
 #define __ZLGTKDIALOG_H__
 
-#include <gtk/gtkdialog.h>
+#include <gtk/gtk.h>
 
 #include <ZLDialog.h>
 #include <ZLResource.h>

@@ -20,7 +20,7 @@
 #ifndef __ZLGTKOPENFILEDIALOG_H__
 #define __ZLGTKOPENFILEDIALOG_H__
 
-#include <gtk/gtkdialog.h>
+#include <gtk/gtk.h>
 
 #include "../../../../core/src/desktop/dialogs/ZLDesktopOpenFileDialog.h"
 

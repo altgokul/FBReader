@@ -22,8 +22,7 @@
 
 #include <stack>
 
-#include <gtk/gtkwindow.h>
-#include <gtk/gtkdialog.h>
+#include <gtk/gtk.h>
 
 #include <ZLDialogManager.h>
 

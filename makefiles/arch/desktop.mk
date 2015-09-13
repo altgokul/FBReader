@@ -21,7 +21,7 @@ else
   QTINCLUDE = -I /usr/include/qt4
 endif
 
-GTKINCLUDE = $(shell pkg-config --cflags gtk+-2.0 libpng xft)
+GTKINCLUDE = $(shell pkg-config --cflags gtk+-3.0 libpng xft)
 
 ifeq "$(UI_TYPE)" "qt"
   UILIBS = -lqt-mt
@@ -31,8 +31,12 @@ ifeq "$(UI_TYPE)" "qt4"
   UILIBS = -lQtGui
 endif
 
-ifeq "$(UI_TYPE)" "gtk"
+ifeq "$(UI_TYPE)" "gtk2"
   UILIBS = $(shell pkg-config --libs gtk+-2.0 gio-2.0) -lpng -ljpeg
+endif
+
+ifeq "$(UI_TYPE)" "gtk"
+  UILIBS = $(shell pkg-config --libs gtk+-3.0 gio-2.0) -lpng -ljpeg
 endif
 
 RM = rm -rvf

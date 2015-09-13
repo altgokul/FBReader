@@ -17,8 +17,7 @@
  * 02110-1301, USA.
  */
 
-#include <gtk/gtklabel.h>
-#include <gtk/gtkbox.h>
+#include <gtk/gtk.h>
 
 #include <ZLDialogManager.h>
 
