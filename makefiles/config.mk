@@ -38,8 +38,7 @@ ifeq "$(TARGET_STATUS)" "profile"
 	LDFLAGS += -pg
 endif
 
-ZINCLUDE = -I $(ROOTDIR)/zlibrary/core/include -I $(ROOTDIR)/zlibrary/text/include
-
+ZINCLUDE = -I $(ROOTDIR)/zlibrary/core/include -I $(ROOTDIR)/zlibrary/text/include -I /usr/include/glib-2.0 -I /usr/lib/glib-2.0/include
 ZLSHARED ?= yes
 
 ifeq "$(ZLSHARED)" "yes"
