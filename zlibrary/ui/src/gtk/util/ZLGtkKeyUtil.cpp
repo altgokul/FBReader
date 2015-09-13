@@ -19,8 +19,7 @@
 
 #include <cctype>
 
-#include <gdk/gdkkeysyms.h>
-#include <gdk/gdkkeys.h>
+#include <gdk/gdk.h>
 
 #include <ZLUnicodeUtil.h>
 #include <ZLStringUtil.h>

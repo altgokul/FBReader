@@ -45,7 +45,7 @@ static void setColor(GdkGC *gc, const ZLColor &zlColor) {
 }
 
 ZLGtkPaintContext::ZLGtkPaintContext() {
-	myPixmap = 0;
+	mySurface = 0;
 	myWidth = 0;
 	myHeight = 0;
 
@@ -62,7 +62,7 @@ ZLGtkPaintContext::ZLGtkPaintContext() {
 	myFillGC = 0;
 	myBackGC = 0;
 
-	myTilePixmap = 0;
+	myTileSurface = 0;
 
 	myStringHeight = -1;
 	mySpaceWidth = -1;
@@ -70,8 +70,8 @@ ZLGtkPaintContext::ZLGtkPaintContext() {
 }
 
 ZLGtkPaintContext::~ZLGtkPaintContext() {
-	if (myPixmap != 0) {
-		gdk_pixmap_unref(myPixmap);
+	if (mySurface != 0) {
+		gdk_pixmap_unref(mySurface);
 	}
 	if (myTextGC) {
 		gdk_gc_unref(myTextGC);
@@ -90,7 +90,7 @@ ZLGtkPaintContext::~ZLGtkPaintContext() {
 }
 
 void ZLGtkPaintContext::updatePixmap(GtkWidget *area, int w, int h) {
-	if ((myPixmap != 0) && ((myWidth != w) || (myHeight != h))) {
+	if ((mySurface != 0) && ((myWidth != w) || (myHeight != h))) {
 		if (myTextGC != 0) {
 			gdk_gc_unref(myTextGC);
 			gdk_gc_unref(myFillGC);
@@ -99,20 +99,20 @@ void ZLGtkPaintContext::updatePixmap(GtkWidget *area, int w, int h) {
 			myFillGC = 0;
 			myBackGC = 0;
 		}
-		gdk_pixmap_unref(myPixmap);
-		myPixmap = 0;
+		gdk_pixmap_unref(mySurface);
+		mySurface = 0;
 	}
 
-	if (myPixmap == 0) {
+	if (mySurface == 0) {
 		myWidth = w;
 		myHeight = h;
-		myPixmap = gdk_pixmap_new(area->window, myWidth, myHeight, gdk_drawable_get_depth(area->window));
+		mySurface = gdk_pixmap_new(area->window, myWidth, myHeight, gdk_drawable_get_depth(area->window));
 	}
 
 	if (myTextGC == 0) {
-		myTextGC = gdk_gc_new(myPixmap);
-		myFillGC = gdk_gc_new(myPixmap);
-		myBackGC = gdk_gc_new(myPixmap);
+		myTextGC = gdk_gc_new(mySurface);
+		myFillGC = gdk_gc_new(mySurface);
+		myBackGC = gdk_gc_new(mySurface);
 	}
 
 	if (myContext == 0) {
@@ -209,19 +209,19 @@ void ZLGtkPaintContext::setFillColor(ZLColor color, FillStyle style) {
 		gdk_gc_set_fill(myFillGC, GDK_SOLID);
 	} else {
 		gdk_gc_set_fill(myFillGC, GDK_TILED);
-		if (myPixmap != 0) {
-			if (myTilePixmap != 0) {
-				gdk_pixmap_unref(myTilePixmap);
+		if (mySurface != 0) {
+			if (myTileSurface != 0) {
+				gdk_pixmap_unref(myTileSurface);
 			}
 			static GdkColor fgColor;
 			::setColor(fgColor, color);
 			static GdkColor bgColor;
 			::setColor(bgColor, myBackColor);
 			static char data[] = { 0x0C, 0x0C, 0x03, 0x03 };
-			myTilePixmap = gdk_pixmap_create_from_data(
-				myPixmap, data, 4, 4, gdk_drawable_get_depth(myPixmap), &fgColor, &bgColor
+			myTileSurface = gdk_pixmap_create_from_data(
+				mySurface, data, 4, 4, gdk_drawable_get_depth(mySurface), &fgColor, &bgColor
 			);
-			gdk_gc_set_tile(myFillGC, myTilePixmap);
+			gdk_gc_set_tile(myFillGC, myTileSurface);
 		}
 	}
 }
@@ -279,14 +279,14 @@ void ZLGtkPaintContext::drawString(int x, int y, const char *str, int len, bool 
 
 	myAnalysis.level = rtl ? 1 : 0;
 	pango_shape(str, len, &myAnalysis, myString);
-	gdk_draw_glyphs(myPixmap, myTextGC, myAnalysis.font, x, y, myString);
+	gdk_draw_glyphs(mySurface, myTextGC, myAnalysis.font, x, y, myString);
 }
 
 void ZLGtkPaintContext::drawImage(int x, int y, const ZLImageData &image) {
 	GdkPixbuf *imageRef = ((const ZLGtkImageData&)image).pixbuf();
 	if (imageRef != 0) {
 		gdk_pixbuf_render_to_drawable(
-			imageRef, myPixmap,
+			imageRef, mySurface,
 			0, 0, 0,
 			x, y - gdk_pixbuf_get_height(imageRef),
 			-1, -1, GDK_RGB_DITHER_NONE, 0, 0
@@ -294,7 +294,7 @@ void ZLGtkPaintContext::drawImage(int x, int y, const ZLImageData &image) {
 	}
 	// for gtk+ v2.2
 	// 		gdk_draw_pixbuf(
-	// 			myPixmap, 0, imageRef, 0, 0,
+	// 			mySurface, 0, imageRef, 0, 0,
 	// 			x, y - gdk_pixbuf_get_height(imageRef),
 	// 			-1, -1, GDK_RGB_DITHER_NONE, 0, 0
 	// 		);
@@ -318,7 +318,7 @@ void ZLGtkPaintContext::drawImage(int x, int y, const ZLImageData &image, int wi
 
 	if (imageRef != 0) {
 		gdk_pixbuf_render_to_drawable(
-			scaled, myPixmap,
+			scaled, mySurface,
 			0, 0, 0,
 			x, y - realHeight,
 			realWidth, realHeight, GDK_RGB_DITHER_NONE, 0, 0
@@ -328,7 +328,7 @@ void ZLGtkPaintContext::drawImage(int x, int y, const ZLImageData &image, int wi
 }
 
 void ZLGtkPaintContext::drawLine(int x0, int y0, int x1, int y1) {
-	gdk_draw_line(myPixmap, myTextGC, x0, y0, x1, y1);
+	gdk_draw_line(mySurface, myTextGC, x0, y0, x1, y1);
 }
 
 void ZLGtkPaintContext::fillRectangle(int x0, int y0, int x1, int y1) {
@@ -342,33 +342,33 @@ void ZLGtkPaintContext::fillRectangle(int x0, int y0, int x1, int y1) {
 		y1 = y0;
 		y0 = tmp;
 	}
-	gdk_draw_rectangle(myPixmap, myFillGC, true,
+	gdk_draw_rectangle(mySurface, myFillGC, true,
 										 x0, y0,
 										 x1 - x0 + 1, y1 - y0 + 1);
 }
 
 void ZLGtkPaintContext::drawFilledCircle(int x, int y, int r) {
-	gdk_draw_arc(myPixmap, myFillGC, true, x - r, y - r, 2 * r + 1, 2 * r + 1, 0, 360 * 64);
-	gdk_draw_arc(myPixmap, myTextGC, false, x - r, y - r, 2 * r + 1, 2 * r + 1, 0, 360 * 64);
+	gdk_draw_arc(mySurface, myFillGC, true, x - r, y - r, 2 * r + 1, 2 * r + 1, 0, 360 * 64);
+	gdk_draw_arc(mySurface, myTextGC, false, x - r, y - r, 2 * r + 1, 2 * r + 1, 0, 360 * 64);
 }
 
 void ZLGtkPaintContext::clear(ZLColor color) {
 	myBackColor = color;
-	if (myPixmap != 0) {
+	if (mySurface != 0) {
 		::setColor(myBackGC, color);
-		gdk_draw_rectangle(myPixmap, myBackGC, true, 0, 0, myWidth, myHeight);
+		gdk_draw_rectangle(mySurface, myBackGC, true, 0, 0, myWidth, myHeight);
 	}
 }
 
 int ZLGtkPaintContext::width() const {
-	if (myPixmap == 0) {
+	if (mySurface == 0) {
 		return 0;
 	}
 	return myWidth;
 }
 
 int ZLGtkPaintContext::height() const {
-	if (myPixmap == 0) {
+	if (mySurface == 0) {
 		return 0;
 	}
 	return myHeight;

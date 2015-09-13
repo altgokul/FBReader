@@ -19,7 +19,7 @@
 
 #include <algorithm>
 
-#include <gtk/gtkwindow.h>
+#include <gtk/gtk.h>
 
 #include <ZLibrary.h>
 #include <ZLLanguageUtil.h>

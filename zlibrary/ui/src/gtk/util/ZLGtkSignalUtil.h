@@ -28,12 +28,12 @@
 class ZLGtkSignalUtil {
 
 public:
-	static void connectSignal(GtkObject *object, const char *name, GtkSignalFunc function, void *data);
-	static void connectSignalAfter(GtkObject *object, const char *name, GtkSignalFunc function, void *data);
+	static void connectSignal(GObject *object, const char *name, void (*function)(void), void *data);
+	static void connectSignalAfter(GObject *object, const char *name, void (*function)(void), void *data);
 	static void removeAllSignals();
 
 private:
-	static std::vector<std::pair<GtkObject*,int> > ourConnectedSignals;
+	static std::vector<std::pair<GObject*,int> > ourConnectedSignals;
 
 private:
 	ZLGtkSignalUtil();

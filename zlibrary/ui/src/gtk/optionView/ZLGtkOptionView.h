@@ -158,7 +158,7 @@ private:
 	
 private:
 	GtkLabel *myLabel;
-	GtkComboBox *myComboBox;
+	GtkComboBoxText *myComboBox;
 	int mySelectedIndex;
 	int myListSize;
 };
@@ -198,7 +198,7 @@ private:
 	GtkTable *myTable;
 	GtkEntry *myKeyEntry;
 	GtkLabel *myLabel;
-	GtkComboBox *myComboBox;
+	GtkComboBoxText *myComboBox;
 	std::string myCurrentKey;
 };
 

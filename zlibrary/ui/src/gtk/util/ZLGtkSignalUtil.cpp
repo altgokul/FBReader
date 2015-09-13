@@ -19,20 +19,20 @@
 
 #include "ZLGtkSignalUtil.h"
 
-std::vector<std::pair<GtkObject*,int> > ZLGtkSignalUtil::ourConnectedSignals;
+std::vector<std::pair<GObject*,int> > ZLGtkSignalUtil::ourConnectedSignals;
 
-void ZLGtkSignalUtil::connectSignal(GtkObject *object, const char *name, GtkSignalFunc function, void *data) {
-	int handlerId = gtk_signal_connect(object, name, function, data);
+void ZLGtkSignalUtil::connectSignal(GObject *object, const char *name, void(*function)(void), void *data) {
+	int handlerId = g_signal_connect(object, name, function, data);
 	ourConnectedSignals.push_back(std::make_pair(object, handlerId));
 }
 
-void ZLGtkSignalUtil::connectSignalAfter(GtkObject *object, const char *name, GtkSignalFunc function, void *data) {
+void ZLGtkSignalUtil::connectSignalAfter(GObject *object, const char *name, void(*function)(void), void *data) {
 	int handlerId = g_signal_connect_after(object, name, function, data);
 	ourConnectedSignals.push_back(std::make_pair(object, handlerId));
 }
 
 void ZLGtkSignalUtil::removeAllSignals() {
-	for (std::vector<std::pair<GtkObject*,int> >::const_iterator it = ourConnectedSignals.begin(); it != ourConnectedSignals.end(); ++it) {
-		gtk_signal_disconnect(it->first, it->second);
+	for (std::vector<std::pair<GObject*,int> >::const_iterator it = ourConnectedSignals.begin(); it != ourConnectedSignals.end(); ++it) {
+		g_signal_handler_disconnect(it->first, it->second);
 	}
 }

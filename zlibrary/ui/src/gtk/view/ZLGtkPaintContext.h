@@ -32,7 +32,7 @@ public:
 	ZLGtkPaintContext();
 	~ZLGtkPaintContext();
 
-	GdkPixmap *pixmap() { return myPixmap; }
+	cairo_surface_t *pixmap() { return mySurface; }
 	void updatePixmap(GtkWidget *area, int w, int h);
 
 	int width() const;
@@ -61,7 +61,7 @@ public:
 	void drawFilledCircle(int x, int y, int r);
 
 private:
-	GdkPixmap *myPixmap;
+	cairo_surface_t *mySurface;
 	int myWidth, myHeight;
 
 	PangoContext *myContext;
@@ -70,12 +70,12 @@ private:
 	mutable PangoAnalysis myAnalysis;
 	PangoGlyphString *myString;
 
-	GdkGC *myTextGC;
-	GdkGC *myFillGC;
+	cairo_t *myTextCairo;
+	cairo_t *myFillCairo;
 	ZLColor myBackColor;
-	GdkGC *myBackGC;
+	cairo_t *myBackCairo;
 
-	GdkPixmap *myTilePixmap;
+	cairo_surface_t *myTileSurface;
 
 	std::vector<std::string> myFontFamilies;
 

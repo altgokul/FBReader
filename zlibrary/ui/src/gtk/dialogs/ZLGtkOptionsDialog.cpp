@@ -41,7 +41,7 @@ ZLGtkOptionsDialog::ZLGtkOptionsDialog(const ZLResource &resource, shared_ptr<ZL
 	gtk_notebook_set_scrollable(myNotebook, true);
 
 	gtk_container_set_border_width(GTK_CONTAINER(myNotebook), 8);
-	gtk_box_pack_start(GTK_BOX(myDialog->vbox), GTK_WIDGET(myNotebook), TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(myDialog)), GTK_WIDGET(myNotebook), TRUE, TRUE, 0);
 
 	gtk_widget_show(GTK_WIDGET(myNotebook));
 }

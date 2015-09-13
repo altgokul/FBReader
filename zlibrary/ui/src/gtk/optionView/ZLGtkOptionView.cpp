@@ -179,8 +179,8 @@ void ComboOptionView::_createItem() {
 		myLabel = gtkLabel(name());
 	}
 	myComboBox = comboOptionEntry.isEditable() ?
-		GTK_COMBO_BOX(gtk_combo_box_entry_new_text()) : 
-		GTK_COMBO_BOX(gtk_combo_box_new_text());
+		GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new_with_entry()) : 
+		GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
 
 	g_signal_connect(GTK_WIDGET(myComboBox), "changed", G_CALLBACK(_onValueChanged), this);
 
@@ -212,7 +212,7 @@ void ComboOptionView::_setActive(bool active) {
 }
 
 void ComboOptionView::_onAccept() const {
-	((ZLComboOptionEntry&)*myOption).onAccept(gtk_combo_box_get_active_text(myComboBox));
+	((ZLComboOptionEntry&)*myOption).onAccept(gtk_combo_box_text_get_active_text(myComboBox));
 }
 
 void ComboOptionView::reset() {
@@ -221,7 +221,7 @@ void ComboOptionView::reset() {
 	}
 
 	for (; myListSize > 0; --myListSize) {
-		gtk_combo_box_remove_text(myComboBox, 0);
+		gtk_combo_box_text_remove(myComboBox, 0);
 	}
 	const ZLComboOptionEntry &comboOptionEntry = (ZLComboOptionEntry&)*myOption;
 	const std::vector<std::string> &values = comboOptionEntry.values();
@@ -233,21 +233,21 @@ void ComboOptionView::reset() {
 		if (*it == initial) {
 			mySelectedIndex = index;
 		}
-		gtk_combo_box_append_text(myComboBox, it->c_str());
+		gtk_combo_box_text_append_text(myComboBox, it->c_str());
 	}
 	if (mySelectedIndex >= 0) {
-		gtk_combo_box_set_active(myComboBox, mySelectedIndex);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(myComboBox), mySelectedIndex);
 	}
 }
 
 void ComboOptionView::onValueChanged() {
-	int index = gtk_combo_box_get_active(myComboBox);
+	int index = gtk_combo_box_get_active(GTK_COMBO_BOX(myComboBox));
 	ZLComboOptionEntry &o = (ZLComboOptionEntry&)*myOption;
 	if ((index != mySelectedIndex) && (index >= 0) && (index < (int)o.values().size())) {
 		mySelectedIndex = index;
   	o.onValueSelected(mySelectedIndex);
 	} else if (o.useOnValueEdited()) {
-		std::string text = gtk_combo_box_get_active_text(myComboBox);
+		std::string text = gtk_combo_box_text_get_active_text(myComboBox);
   	o.onValueEdited(text);
 	}
 }
@@ -324,7 +324,7 @@ void StringOptionView::_hide() {
 }
 
 void StringOptionView::_setActive(bool active) {
-	gtk_entry_set_editable(myLineEdit, active);
+	gtk_editable_set_editable(GTK_EDITABLE(myLineEdit), active);
 }
 
 void StringOptionView::_onAccept() const {
@@ -396,7 +396,7 @@ void ColorOptionView::_onAccept() const {
 }
 
 static bool key_view_focus_in_event(GtkWidget *entry, GdkEventFocus*, gpointer) {
-	gdk_keyboard_grab(entry->window, true, GDK_CURRENT_TIME);
+	gtk_widget_grab_focus(entry);
 	((ZLGtkDialogManager&)ZLGtkDialogManager::Instance()).grabKeyboard(true);
 	return false;
 }
@@ -415,17 +415,17 @@ static bool key_view_key_press_event(GtkWidget *entry, GdkEventKey *event, gpoin
 
 void KeyOptionView::_createItem() {
 	myKeyEntry = GTK_ENTRY(gtk_entry_new());
-	gtk_signal_connect(GTK_OBJECT(myKeyEntry), "focus_in_event", G_CALLBACK(key_view_focus_in_event), 0);
-	gtk_signal_connect(GTK_OBJECT(myKeyEntry), "focus_out_event", G_CALLBACK(key_view_focus_out_event), 0);
-	gtk_signal_connect(GTK_OBJECT(myKeyEntry), "key_press_event", G_CALLBACK(key_view_key_press_event), this);
+	g_signal_connect(GTK_WIDGET(myKeyEntry), "focus_in_event", G_CALLBACK(key_view_focus_in_event), 0);
+	g_signal_connect(GTK_WIDGET(myKeyEntry), "focus_out_event", G_CALLBACK(key_view_focus_out_event), 0);
+	g_signal_connect(GTK_WIDGET(myKeyEntry), "key_press_event", G_CALLBACK(key_view_key_press_event), this);
 	key_view_focus_out_event(GTK_WIDGET(myKeyEntry), 0, 0);
 
 	myLabel = GTK_LABEL(gtkLabel(ZLResource::resource("keyOptionView")["actionFor"].value()));
 
-	myComboBox = GTK_COMBO_BOX(gtk_combo_box_new_text());
+	myComboBox = GTK_COMBO_BOX_TEXT(gtk_combo_box_text_new());
 	const std::vector<std::string> &actions = ((ZLKeyOptionEntry&)*myOption).actionNames();
 	for (std::vector<std::string>::const_iterator it = actions.begin(); it != actions.end(); ++it) {
-		gtk_combo_box_append_text(myComboBox, it->c_str());
+		gtk_combo_box_text_append_text(myComboBox, it->c_str());
 	}
 
 	myTable = GTK_TABLE(gtk_table_new(2, 2, false));
@@ -443,7 +443,7 @@ void KeyOptionView::onValueChanged() {
 	if (!myCurrentKey.empty()) {
 		((ZLKeyOptionEntry&)*myOption).onValueChanged(
 			myCurrentKey,
-			gtk_combo_box_get_active(myComboBox)
+			gtk_combo_box_get_active(GTK_COMBO_BOX(myComboBox))
 		);
 	}
 }
@@ -451,7 +451,7 @@ void KeyOptionView::onValueChanged() {
 void KeyOptionView::setKey(const std::string &key) {
 	myCurrentKey = key;
 	if (!key.empty()) {
-		gtk_combo_box_set_active(myComboBox, ((ZLKeyOptionEntry&)*myOption).actionIndex(key));
+		gtk_combo_box_set_active(GTK_COMBO_BOX(myComboBox), ((ZLKeyOptionEntry&)*myOption).actionIndex(key));
 		gtk_widget_show(GTK_WIDGET(myComboBox));
 	}
 	((ZLKeyOptionEntry&)*myOption).onKeySelected(myCurrentKey);

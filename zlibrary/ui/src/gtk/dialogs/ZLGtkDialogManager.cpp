@@ -74,7 +74,7 @@ int ZLGtkDialogManager::internalBox(const gchar *icon, const std::string &title,
 	gtk_label_set_line_wrap(GTK_LABEL(label), true);
 	gtk_box_pack_start(GTK_BOX(contents), image, false, false, 0);
 	gtk_box_pack_start(GTK_BOX(contents), label, true, true, 0);
-	gtk_box_pack_start(GTK_BOX(dialog->vbox), contents, true, true, 0);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(dialog)), contents, true, true, 0);
 	gtk_widget_show_all(GTK_WIDGET(dialog));
 	gint response = gtk_dialog_run(dialog);
 	destroyGtkDialog(dialog);

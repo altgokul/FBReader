@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include <gtk/gtkwidget.h>
+#include <gtk/gtk.h>
 
 #include <shared_ptr.h>
 

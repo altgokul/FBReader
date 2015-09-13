@@ -40,7 +40,7 @@ void ZLGtkDialog::addButton(const ZLResourceKey &key, bool accept) {
 
 bool ZLGtkDialog::run() {
 	if (!myIsPacked) {
-		gtk_box_pack_start(GTK_BOX(myDialog->vbox), GTK_WIDGET(((ZLGtkDialogContent*)myTab)->widget()), true, true, 0);
+		gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(myDialog)), GTK_WIDGET(((ZLGtkDialogContent*)myTab)->widget()), true, true, 0);
 		myIsPacked = true;
 	}
 	gtk_widget_show_all(GTK_WIDGET(myDialog));

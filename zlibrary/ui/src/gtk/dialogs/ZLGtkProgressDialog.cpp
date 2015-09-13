@@ -51,10 +51,10 @@ void ZLGtkProgressDialog::run(ZLRunnable &runnable) {
 	GdkCursor *cursor = gdk_cursor_new(GDK_WATCH);
 
 	if (myParent != 0) {
-		gdk_window_set_cursor(GTK_WIDGET(myParent)->window, cursor);
+		gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(myParent)), cursor);
 	}
 
-	gdk_window_set_cursor(GTK_WIDGET(mainWindow)->window, cursor);
+	gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(mainWindow)), cursor);
 	gdk_cursor_unref(cursor);
 
 	int x, y, w, h;
@@ -65,7 +65,7 @@ void ZLGtkProgressDialog::run(ZLRunnable &runnable) {
 		y += h / 2;
 	} else {
 		GdkWindow *root = gdk_screen_get_root_window(gdk_screen_get_default());
-		gdk_window_get_geometry(root, &x, &y, &w, &h, 0);
+		gdk_window_get_geometry(root, &x, &y, &w, &h);
 		x += w / 2;
 		y += h / 2;
 	}
@@ -91,7 +91,7 @@ void ZLGtkProgressDialog::run(ZLRunnable &runnable) {
 	myLabel = 0;
 
 	if (myParent != 0) {
-		gdk_window_set_cursor(GTK_WIDGET(myParent)->window, 0);
+		gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(myParent)), 0);
 	}
 	gtk_widget_destroy(GTK_WIDGET(mainWindow));
 }

@@ -19,6 +19,7 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
+#include <gdk/gdkkeysyms-compat.h>
 
 #include "ZLGtkUtil.h"
 #include "ZLGtkDialogManager.h"
@@ -69,7 +70,7 @@ GtkDialog *createGtkDialog(const std::string &title) {
 		gtk_window_set_transient_for(dialog, window);
 	}
 	gtk_window_set_modal(dialog, TRUE);
-	gtk_signal_connect(GTK_OBJECT(dialog), "key-press-event", G_CALLBACK(dialogDefaultKeys), 0);
+	g_signal_connect(GTK_WIDGET(dialog), "key-press-event", G_CALLBACK(dialogDefaultKeys), 0);
 
 	((ZLGtkDialogManager&)ZLGtkDialogManager::Instance()).myDialogs.push(dialog);
 	return GTK_DIALOG(dialog);

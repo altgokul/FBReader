@@ -18,6 +18,7 @@
  */
 
 #include <gtk/gtk.h>
+#include <gdk/gdk.h>
 
 #include <ZLApplication.h>
 #include <ZLibrary.h>
