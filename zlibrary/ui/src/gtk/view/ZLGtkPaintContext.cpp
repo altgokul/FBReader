@@ -19,7 +19,7 @@
 
 #include <algorithm>
 
-#include <gdk/gdkscreen.h>
+#include <gdk/gdk.h>
 
 #include <ZLUnicodeUtil.h>
 #include <ZLImage.h>
@@ -28,18 +28,21 @@
 #include "../image/ZLGtkImageManager.h"
 
 static bool setColor(GdkColor &gdkColor, const ZLColor &zlColor) {
+	return true;
+	/*
 	gdkColor.red = zlColor.Red * (65535 / 255);
 	gdkColor.green = zlColor.Green * (65535 / 255);
 	gdkColor.blue = zlColor.Blue * (65535 / 255);
-	GdkColormap *colormap = gdk_colormap_get_system();
+	GdkVisual *visual = gdk_screen_get_system_visual(gdk_screen_get_default());
 	return gdk_colormap_alloc_color(colormap, &gdkColor, false, false);
+	*/
 }
 
-static void setColor(GdkGC *gc, const ZLColor &zlColor) {
-	if (gc != 0) {
+static void setColor(cairo_t *cr, const ZLColor &zlColor) {
+	if (cr != 0) {
 		GdkColor gdkColor;
 		if (setColor(gdkColor, zlColor)) {
-			gdk_gc_set_foreground(gc, &gdkColor);
+			gdk_cairo_set_source_color(cr, &gdkColor);
 		}
 	}
 }
@@ -58,9 +61,9 @@ ZLGtkPaintContext::ZLGtkPaintContext() {
 	myAnalysis.extra_attrs = 0;
 	myString = pango_glyph_string_new();
 
-	myTextGC = 0;
-	myFillGC = 0;
-	myBackGC = 0;
+	myTextCairo = 0;
+	myFillCairo = 0;
+	myBackCairo = 0;
 
 	myTileSurface = 0;
 
@@ -71,11 +74,13 @@ ZLGtkPaintContext::ZLGtkPaintContext() {
 
 ZLGtkPaintContext::~ZLGtkPaintContext() {
 	if (mySurface != 0) {
-		gdk_pixmap_unref(mySurface);
+		cairo_surface_destroy(mySurface);
 	}
-	if (myTextGC) {
-		gdk_gc_unref(myTextGC);
-		gdk_gc_unref(myFillGC);
+	if (myTextCairo) {
+		cairo_destroy(myTextCairo);
+		cairo_destroy(myFillCairo);
+		cairo_destroy(myBackCairo);
+		cairo_destroy(myGenericCairo);
 	}
 
 	pango_glyph_string_free(myString);
@@ -91,28 +96,31 @@ ZLGtkPaintContext::~ZLGtkPaintContext() {
 
 void ZLGtkPaintContext::updatePixmap(GtkWidget *area, int w, int h) {
 	if ((mySurface != 0) && ((myWidth != w) || (myHeight != h))) {
-		if (myTextGC != 0) {
-			gdk_gc_unref(myTextGC);
-			gdk_gc_unref(myFillGC);
-			gdk_gc_unref(myBackGC);
-			myTextGC = 0;
-			myFillGC = 0;
-			myBackGC = 0;
+		if (myTextCairo != 0) {
+			cairo_destroy(myTextCairo);
+			cairo_destroy(myFillCairo);
+			cairo_destroy(myBackCairo);
+			cairo_destroy(myGenericCairo);
+			myTextCairo = 0;
+			myFillCairo = 0;
+			myBackCairo = 0;
+			myGenericCairo = 0;
 		}
-		gdk_pixmap_unref(mySurface);
+		cairo_surface_destroy(mySurface);
 		mySurface = 0;
 	}
 
 	if (mySurface == 0) {
 		myWidth = w;
 		myHeight = h;
-		mySurface = gdk_pixmap_new(area->window, myWidth, myHeight, gdk_drawable_get_depth(area->window));
+		mySurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, myWidth, myHeight);
 	}
 
-	if (myTextGC == 0) {
-		myTextGC = gdk_gc_new(mySurface);
-		myFillGC = gdk_gc_new(mySurface);
-		myBackGC = gdk_gc_new(mySurface);
+	if (myTextCairo == 0) {
+		myTextCairo = cairo_create(mySurface);
+		myFillCairo = cairo_create(mySurface);
+		myBackCairo = cairo_create(mySurface);
+		myGenericCairo = cairo_create(mySurface);
 	}
 
 	if (myContext == 0) {
@@ -199,16 +207,30 @@ void ZLGtkPaintContext::setFont(const std::string &family, int size, bool bold, 
 }
 
 void ZLGtkPaintContext::setColor(ZLColor color, LineStyle style) {
-	::setColor(myTextGC, color);
-	gdk_gc_set_line_attributes(myTextGC, 0, (style == SOLID_LINE) ? GDK_LINE_SOLID : GDK_LINE_ON_OFF_DASH, (GdkCapStyle)1, (GdkJoinStyle)1);
+	double dashes[] = {50.0,  /* ink */
+		10.0,  /* skip */
+		10.0,  /* ink */
+		10.0   /* skip*/
+	};
+	int    ndash  = sizeof (dashes)/sizeof(dashes[0]);
+	double offset = -50.0;
+
+	cairo_set_dash (myTextCairo, dashes, (style == SOLID_LINE) ? 0 : ndash, offset);
+
+	::setColor(myTextCairo, color);
+	cairo_set_line_width(myTextCairo, 0);
+	cairo_set_line_join(myTextCairo, CAIRO_LINE_JOIN_MITER);
+	cairo_set_line_cap(myTextCairo, CAIRO_LINE_CAP_BUTT);
 }
 
 void ZLGtkPaintContext::setFillColor(ZLColor color, FillStyle style) {
+	return;
+	/*
 	if (style == SOLID_FILL) {
-		::setColor(myFillGC, color);
-		gdk_gc_set_fill(myFillGC, GDK_SOLID);
+		::setColor(myFillCairo, color);
+		gdk_gc_set_fill(myFillCairo, GDK_SOLID);
 	} else {
-		gdk_gc_set_fill(myFillGC, GDK_TILED);
+		gdk_gc_set_fill(myFillCairo, GDK_TILED);
 		if (mySurface != 0) {
 			if (myTileSurface != 0) {
 				gdk_pixmap_unref(myTileSurface);
@@ -221,9 +243,9 @@ void ZLGtkPaintContext::setFillColor(ZLColor color, FillStyle style) {
 			myTileSurface = gdk_pixmap_create_from_data(
 				mySurface, data, 4, 4, gdk_drawable_get_depth(mySurface), &fgColor, &bgColor
 			);
-			gdk_gc_set_tile(myFillGC, myTileSurface);
+			gdk_gc_set_tile(myFillCairo, myTileSurface);
 		}
-	}
+	}*/
 }
 
 int ZLGtkPaintContext::stringWidth(const char *str, int len, bool rtl) const {
@@ -279,31 +301,16 @@ void ZLGtkPaintContext::drawString(int x, int y, const char *str, int len, bool 
 
 	myAnalysis.level = rtl ? 1 : 0;
 	pango_shape(str, len, &myAnalysis, myString);
-	gdk_draw_glyphs(mySurface, myTextGC, myAnalysis.font, x, y, myString);
+	cairo_move_to(myTextCairo, x, y);
+	pango_cairo_show_glyph_string(myTextCairo, myAnalysis.font, myString);
 }
 
 void ZLGtkPaintContext::drawImage(int x, int y, const ZLImageData &image) {
 	GdkPixbuf *imageRef = ((const ZLGtkImageData&)image).pixbuf();
 	if (imageRef != 0) {
-		gdk_pixbuf_render_to_drawable(
-			imageRef, mySurface,
-			0, 0, 0,
-			x, y - gdk_pixbuf_get_height(imageRef),
-			-1, -1, GDK_RGB_DITHER_NONE, 0, 0
-		);
+		gdk_cairo_set_source_pixbuf(myGenericCairo, imageRef, x, y);
+		cairo_paint(myGenericCairo);
 	}
-	// for gtk+ v2.2
-	// 		gdk_draw_pixbuf(
-	// 			mySurface, 0, imageRef, 0, 0,
-	// 			x, y - gdk_pixbuf_get_height(imageRef),
-	// 			-1, -1, GDK_RGB_DITHER_NONE, 0, 0
-	// 		);
-	//
-	// COMMENTS:
-	// 0			-- we have no clipping (do we need it?)
-	// 0, 0			-- offset in the image
-	// -1, -1		-- use the whole
-	// GDK_RGB_DITHER_NONE -- no dithering, hopefully, (0, 0) after it does not harm
 }
 
 void ZLGtkPaintContext::drawImage(int x, int y, const ZLImageData &image, int width, int height, ScalingType type) {
@@ -317,18 +324,15 @@ void ZLGtkPaintContext::drawImage(int x, int y, const ZLImageData &image, int wi
 	GdkPixbuf *scaled = gdk_pixbuf_scale_simple(imageRef, realWidth, realHeight, GDK_INTERP_BILINEAR);
 
 	if (imageRef != 0) {
-		gdk_pixbuf_render_to_drawable(
-			scaled, mySurface,
-			0, 0, 0,
-			x, y - realHeight,
-			realWidth, realHeight, GDK_RGB_DITHER_NONE, 0, 0
-		);
+		gdk_cairo_set_source_pixbuf(myGenericCairo, scaled, x, y);
+		cairo_paint(myGenericCairo);
 	}
 	gdk_pixbuf_unref(scaled);
 }
 
 void ZLGtkPaintContext::drawLine(int x0, int y0, int x1, int y1) {
-	gdk_draw_line(mySurface, myTextGC, x0, y0, x1, y1);
+	cairo_move_to(myGenericCairo, x0, y0);
+	cairo_line_to(myGenericCairo, x1, y1);
 }
 
 void ZLGtkPaintContext::fillRectangle(int x0, int y0, int x1, int y1) {
@@ -342,21 +346,20 @@ void ZLGtkPaintContext::fillRectangle(int x0, int y0, int x1, int y1) {
 		y1 = y0;
 		y0 = tmp;
 	}
-	gdk_draw_rectangle(mySurface, myFillGC, true,
-										 x0, y0,
+	cairo_rectangle(myFillCairo, x0, y0,
 										 x1 - x0 + 1, y1 - y0 + 1);
+	cairo_fill(myFillCairo);
 }
 
 void ZLGtkPaintContext::drawFilledCircle(int x, int y, int r) {
-	gdk_draw_arc(mySurface, myFillGC, true, x - r, y - r, 2 * r + 1, 2 * r + 1, 0, 360 * 64);
-	gdk_draw_arc(mySurface, myTextGC, false, x - r, y - r, 2 * r + 1, 2 * r + 1, 0, 360 * 64);
+	cairo_arc(myFillCairo, x, y, r, 0, 360 * 64);
 }
 
 void ZLGtkPaintContext::clear(ZLColor color) {
 	myBackColor = color;
 	if (mySurface != 0) {
-		::setColor(myBackGC, color);
-		gdk_draw_rectangle(mySurface, myBackGC, true, 0, 0, myWidth, myHeight);
+		::setColor(myBackCairo, color);
+		cairo_rectangle(myBackCairo, 0, 0, myWidth, myHeight);
 	}
 }
 

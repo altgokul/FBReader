@@ -23,13 +23,7 @@
 #include <vector>
 #include <map>
 
-#include <gtk/gtkwidget.h>
-#include <gtk/gtkwindow.h>
-#include <gtk/gtktoolbar.h>
-#include <gtk/gtktoolitem.h>
-#include <gtk/gtkmenutoolbutton.h>
-#include <gtk/gtkentry.h>
-#include <gtk/gtkhandlebox.h>
+#include <gtk/gtk.h>
 
 #include "../../../../core/src/desktop/application/ZLDesktopApplicationWindow.h"
 #include "../../../../core/src/application/ZLToolbar.h"

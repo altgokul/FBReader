@@ -48,7 +48,7 @@ void ZLGtkApplicationWindow::GtkEntryParameter::onValueChanged() {
 	const int index = gtk_combo_box_get_active(comboBox);
 	const int size = gtk_tree_model_iter_n_children(gtk_combo_box_get_model(comboBox), 0);
 	if ((index >= 0) && (index < size)) {
-		const char *text = gtk_combo_box_get_active_text(comboBox);
+		const char *text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(comboBox));
 		if (text != 0) {
 			std::string sText = text;
 			if (!sText.empty()) {
@@ -66,9 +66,9 @@ static bool onValueChanged(GtkComboBox*, ZLGtkApplicationWindow::GtkEntryParamet
 
 ZLGtkApplicationWindow::GtkEntryParameter::GtkEntryParameter(ZLGtkApplicationWindow &window, const ZLToolbar::ParameterItem &item) : myWindow(window), myItem(item) {
 	if (item.type() == ZLToolbar::Item::COMBO_BOX) {
-		myWidget = gtk_combo_box_entry_new_text();
-		myEntry = GTK_ENTRY(GTK_BIN(myWidget)->child);
-		ZLGtkSignalUtil::connectSignal(GTK_OBJECT(myEntry), "changed", GTK_SIGNAL_FUNC(::onValueChanged), this);
+		myWidget = gtk_combo_box_new_with_entry();
+		myEntry = GTK_ENTRY(gtk_bin_get_child(GTK_BIN(myWidget)));
+		ZLGtkSignalUtil::connectSignal(G_OBJECT(myEntry), "changed", G_CALLBACK(::onValueChanged), this);
 	} else {
 		myWidget = gtk_entry_new();
 		myEntry = GTK_ENTRY(myWidget);
@@ -76,7 +76,7 @@ ZLGtkApplicationWindow::GtkEntryParameter::GtkEntryParameter(ZLGtkApplicationWin
 	gtk_entry_set_alignment(myEntry, 0.5);
 	gtk_entry_set_width_chars(myEntry, item.maxWidth());
 	gtk_entry_set_max_length(myEntry, item.maxWidth());
-	ZLGtkSignalUtil::connectSignal(GTK_OBJECT(myEntry), "key_press_event", GTK_SIGNAL_FUNC(::onKeyPressed), this);
+	ZLGtkSignalUtil::connectSignal(G_OBJECT(myEntry), "key_press_event", G_CALLBACK(::onKeyPressed), this);
 }
 
 GtkToolItem *ZLGtkApplicationWindow::GtkEntryParameter::createToolItem() {
@@ -103,10 +103,10 @@ void ZLGtkApplicationWindow::GtkEntryParameter::setValueList(const std::vector<s
 
 	int size = gtk_tree_model_iter_n_children(gtk_combo_box_get_model(comboBox), 0);
 	for (; size > 0; --size) {
-		gtk_combo_box_remove_text(comboBox, 0);
+		gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(comboBox), 0);
 	}
 
 	for (std::vector<std::string>::const_iterator it = values.begin(); it != values.end(); ++it) {
-		gtk_combo_box_append_text(comboBox, it->c_str());
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(comboBox), it->c_str());
 	}
 }

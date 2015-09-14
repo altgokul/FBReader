@@ -60,7 +60,6 @@ private:
 	GtkTable *myTable;
 	GdkPixbuf *myOriginalPixbuf;
 	GdkPixbuf *myRotatedPixbuf;
-	GdkImage *myImage;
 	bool myRepaintBlocked;
 
 	GtkAdjustment *myVerticalAdjustment;

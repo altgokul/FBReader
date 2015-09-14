@@ -74,6 +74,7 @@ private:
 	cairo_t *myFillCairo;
 	ZLColor myBackColor;
 	cairo_t *myBackCairo;
+	cairo_t *myGenericCairo;
 
 	cairo_surface_t *myTileSurface;
 
