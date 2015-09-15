@@ -28,10 +28,10 @@
 #include "../image/ZLGtkImageManager.h"
 
 static bool setColor(GdkRGBA &gdkRGBA, const ZLColor &zlColor) {
-	gdkRGBA.red = zlColor.Red / 255;
-	gdkRGBA.green = zlColor.Green / 255;
-	gdkRGBA.blue = zlColor.Blue / 255;
-	gdkRGBA.alpha = 1;
+	gdkRGBA.red = (gdouble)zlColor.Red / 255;
+	gdkRGBA.green = (gdouble)zlColor.Green / 255;
+	gdkRGBA.blue = (gdouble)zlColor.Blue / 255;
+	gdkRGBA.alpha = 1.0;
 	return true;
 }
 
