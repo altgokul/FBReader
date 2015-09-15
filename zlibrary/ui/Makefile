@@ -47,7 +47,7 @@ ifeq "$(UI_TYPE)" "qt4"
 endif
 
 ifeq "$(UI_TYPE)" "gtk2"
-  GTKSUBDIRS = src/gtk/time src/gtk/dialogs src/gtk/optionView src/gtk/image src/gtk/util src/gtk/filesystem src/gtk/library src/gtk/view src/unix/message src/gtk/application-$(TARGET_ARCH) src/gtk/pixbuf
+  GTKSUBDIRS = src/gtk2/time src/gtk2/dialogs src/gtk2/optionView src/gtk2/image src/gtk2/util src/gtk2/filesystem src/gtk2/library src/gtk2/view src/unix/message src/gtk2/application-$(TARGET_ARCH) src/gtk2/pixbuf
 endif
 
 ifeq "$(UI_TYPE)" "gtk"

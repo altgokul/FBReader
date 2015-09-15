@@ -33,6 +33,7 @@ endif
 
 ifeq "$(UI_TYPE)" "gtk2"
   UILIBS = $(shell pkg-config --libs gtk+-2.0 gio-2.0) -lpng -ljpeg
+  GTKINCLUDE = $(shell pkg-config --cflags gtk+-2.0 libpng xft)
 endif
 
 ifeq "$(UI_TYPE)" "gtk"
