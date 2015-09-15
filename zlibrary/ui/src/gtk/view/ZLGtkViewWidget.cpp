@@ -92,8 +92,10 @@ static void mouseMoved(GtkWidget*, GdkEventMotion *event, gpointer data) {
 	}
 }
 
-static void doPaint(GtkWidget*, GdkEventExpose*, ZLGtkViewWidget *data) {
-	data->doPaint();
+static void doPaint(GtkWidget *widget, cairo_t *cr, ZLGtkViewWidget *data) {
+	if (!gtk_widget_is_drawable(widget))
+		return;
+	data->doPaint(cr);
 }
 
 int ZLGtkViewWidget::width() const {
@@ -210,7 +212,7 @@ ZLGtkViewWidget::ZLGtkViewWidget(ZLApplication *application, ZLView::Angle initi
 	ZLGtkSignalUtil::connectSignal(G_OBJECT(myArea), "button_press_event", G_CALLBACK(mousePressed), this);
 	ZLGtkSignalUtil::connectSignal(G_OBJECT(myArea), "button_release_event", G_CALLBACK(mouseReleased), this);
 	ZLGtkSignalUtil::connectSignal(G_OBJECT(myArea), "motion_notify_event", G_CALLBACK(mouseMoved), this);
-	ZLGtkSignalUtil::connectSignal(G_OBJECT(myArea), "expose_event", G_CALLBACK(::doPaint), this);
+	ZLGtkSignalUtil::connectSignal(G_OBJECT(myArea), "draw", G_CALLBACK(::doPaint), this);
 	myRepaintBlocked = false;
 }
 
@@ -304,20 +306,19 @@ void ZLGtkViewWidget::repaint()	{
 	}
 }
 
-void ZLGtkViewWidget::doPaint()	{
+void ZLGtkViewWidget::doPaint(cairo_t *cr)	{
 	ZLGtkPaintContext &gtkContext = (ZLGtkPaintContext&)view()->context();
 	ZLView::Angle angle = rotation();
 	bool isRotated = (angle == ZLView::DEGREES90) || (angle == ZLView::DEGREES270);
 	int w = isRotated ? height() : width();
 	int h = isRotated ? width() : height();
-	cairo_t *myGenericCairo = gdk_cairo_create (gtk_widget_get_window(myArea));
 
 	gtkContext.updatePixmap(myArea, w, h);
 	view()->paint();
 
 	cleanOriginalPixbuf();
 	cleanRotatedPixbuf();
-	cairo_set_source_surface(myGenericCairo, gtkContext.pixmap(), 0, 0);
+	cairo_set_source_surface(cr, gtkContext.pixmap(), 0, 0);
 
 	/*
 	switch (angle) {
@@ -369,11 +370,10 @@ void ZLGtkViewWidget::doPaint()	{
 			break;
 	}
 */
-	cairo_paint(myGenericCairo);
-	cairo_destroy(myGenericCairo);
-	myRepaintBlocked = true;
+	cairo_paint(cr);
+	/*myRepaintBlocked = true;
 	myApplication->refreshWindow();
-	myRepaintBlocked = false;
+	myRepaintBlocked = false;*/
 }
 
 GtkWidget *ZLGtkViewWidget::area() {

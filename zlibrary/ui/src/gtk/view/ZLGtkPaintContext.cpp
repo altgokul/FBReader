@@ -64,6 +64,7 @@ ZLGtkPaintContext::ZLGtkPaintContext() {
 	myTextCairo = 0;
 	myFillCairo = 0;
 	myBackCairo = 0;
+	myGenericCairo = 0;
 
 	myTileSurface = 0;
 

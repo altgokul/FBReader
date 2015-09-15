@@ -33,7 +33,7 @@ public:
 
 	int width() const;
 	int height() const;
-	void doPaint();
+	void doPaint(cairo_t *cr);
 
 	GtkWidget *area();
 	GtkWidget *areaWithScrollbars();
