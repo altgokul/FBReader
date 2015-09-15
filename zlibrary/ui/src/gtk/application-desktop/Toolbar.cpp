@@ -28,7 +28,7 @@ static const char *menuId = "gtk-tool-button-menu-id";
 static const char *menuKey = "gtk-tool-button-menu-key";
 
 static void runMenuItem(GtkImageMenuItem *menuItem, ZLGtkApplicationWindow *data) {
-	data->onGtkButtonPress(GTK_TOOL_ITEM(gtk_object_get_data(GTK_OBJECT(menuItem), menuKey)));
+	data->onGtkButtonPress(GTK_TOOL_ITEM(g_object_get_data(G_OBJECT(menuItem), menuKey)));
 }
 
 static bool createMenuProxy(GtkToolItem *toolItem, ZLGtkApplicationWindow *data) {
@@ -43,8 +43,8 @@ static bool createMenuProxy(GtkToolItem *toolItem, ZLGtkApplicationWindow *data)
 			)
 		)
 	);
-	gtk_object_set_data(GTK_OBJECT(menuItem), menuKey, toolItem);
-	ZLGtkSignalUtil::connectSignal(GTK_OBJECT(menuItem), "activate", GTK_SIGNAL_FUNC(runMenuItem), data);
+	g_object_set_data(G_OBJECT(menuItem), menuKey, toolItem);
+	ZLGtkSignalUtil::connectSignal(G_OBJECT(menuItem), "activate", G_CALLBACK(runMenuItem), data);
 	gtk_tool_item_set_proxy_menu_item(toolItem, menuId, menuItem);
 
 	return true;
@@ -53,7 +53,7 @@ static bool createMenuProxy(GtkToolItem *toolItem, ZLGtkApplicationWindow *data)
 ZLGtkApplicationWindow::Toolbar::Toolbar(ZLGtkApplicationWindow *window) : myWindow(window) {
 	myGtkToolbar = GTK_TOOLBAR(gtk_toolbar_new());
 	gtk_toolbar_set_style(myGtkToolbar, GTK_TOOLBAR_ICONS);
-	gtk_toolbar_set_tooltips(myGtkToolbar, true);
+	//gtk_toolbar_set_tooltips(myGtkToolbar, true);
 }
 
 GtkWidget *ZLGtkApplicationWindow::Toolbar::toolbarWidget() const {
@@ -103,16 +103,16 @@ GtkToolItem *ZLGtkApplicationWindow::Toolbar::createGtkToolButton(const ZLToolba
 			myPopupIdMap[gtkItem] =
 				popupData.isNull() ? (size_t)-1 : (popupData->id() - 1);
 			gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(gtkItem), gtk_menu_new());
-			gtk_menu_tool_button_set_arrow_tooltip(GTK_MENU_TOOL_BUTTON(gtkItem), myGtkToolbar->tooltips, menuButton.popupTooltip().c_str(), 0);
+			/*gtk_menu_tool_button_set_arrow_tooltip(GTK_MENU_TOOL_BUTTON(gtkItem), myGtkToolbar->tooltips, menuButton.popupTooltip().c_str(), 0);*/
 			break;
 		}
 		default:
 			break;
 	}
 
-	gtk_tool_item_set_tooltip(gtkItem, myGtkToolbar->tooltips, button.tooltip().c_str(), 0);
-	ZLGtkSignalUtil::connectSignal(GTK_OBJECT(gtkItem), "create_menu_proxy", GTK_SIGNAL_FUNC(createMenuProxy), myWindow);
-	ZLGtkSignalUtil::connectSignal(GTK_OBJECT(gtkItem), "clicked", GTK_SIGNAL_FUNC(onButtonClicked), myWindow);
+	//gtk_tool_item_set_tooltip(gtkItem, myGtkToolbar->tooltips, button.tooltip().c_str(), 0);
+	ZLGtkSignalUtil::connectSignal(G_OBJECT(gtkItem), "create_menu_proxy", G_CALLBACK(createMenuProxy), myWindow);
+	ZLGtkSignalUtil::connectSignal(G_OBJECT(gtkItem), "clicked", G_CALLBACK(onButtonClicked), myWindow);
 
 	return gtkItem;
 }
@@ -130,7 +130,7 @@ void ZLGtkApplicationWindow::Toolbar::addToolbarItem(ZLToolbar::ItemPtr item) {
 					new GtkEntryParameter(*myWindow, parameterItem);
 				myWindow->addVisualParameter(parameterItem.parameterId(), parameter);
 				gtkItem = parameter->createToolItem();
-				gtk_tool_item_set_tooltip(gtkItem, myGtkToolbar->tooltips, parameterItem.tooltip().c_str(), 0);
+				//gtk_tool_item_set_tooltip(gtkItem, myGtkToolbar->tooltips, parameterItem.tooltip().c_str(), 0);
 			}
 			break;
 		case ZLToolbar::Item::PLAIN_BUTTON:
@@ -190,7 +190,7 @@ void ZLGtkApplicationWindow::Toolbar::updatePopupData(GtkMenuToolButton *button,
 		GtkWidget *item = gtk_menu_item_new_with_label(data->text(i).c_str());
 		gtk_widget_show_all(item);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-		ZLGtkSignalUtil::connectSignal(GTK_OBJECT(item), "activate", GTK_SIGNAL_FUNC(itemActivated), &*data);
+		ZLGtkSignalUtil::connectSignal(G_OBJECT(item), "activate", G_CALLBACK(itemActivated), &*data);
 	}
 }
 
@@ -211,7 +211,7 @@ void ZLGtkApplicationWindow::Toolbar::setToolbarItemState(ZLToolbar::ItemPtr ite
 	 * does something strange if WIDGET is already insensitive.
 	 */
 	bool alreadyEnabled =
-		(GTK_WIDGET_STATE(GTK_WIDGET(gtkItem)) & GTK_STATE_INSENSITIVE) == 0;
+		(gtk_widget_get_state_flags(GTK_WIDGET(gtkItem)) & GTK_STATE_FLAG_INSENSITIVE) == 0;
 	if (enabled != alreadyEnabled) {
 		gtk_widget_set_sensitive(GTK_WIDGET(gtkItem), enabled);
 	}

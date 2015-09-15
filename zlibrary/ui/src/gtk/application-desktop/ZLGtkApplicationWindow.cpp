@@ -59,7 +59,7 @@ ZLGtkApplicationWindow::ZLGtkApplicationWindow(ZLApplication *application) :
 	myMainWindow = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
 	const std::string iconFileName = ZLibrary::ImageDirectory() + ZLibrary::FileNameDelimiter + ZLibrary::ApplicationName() + ".png";
 	gtk_window_set_icon(myMainWindow, gdk_pixbuf_new_from_file(iconFileName.c_str(), 0));
-	ZLGtkSignalUtil::connectSignal(GTK_OBJECT(myMainWindow), "delete_event", GTK_SIGNAL_FUNC(applicationQuit), this);
+	ZLGtkSignalUtil::connectSignal(G_OBJECT(myMainWindow), "delete_event", G_CALLBACK(applicationQuit), this);
 
 	myVBox = gtk_vbox_new(false, 0);
 	gtk_container_add(GTK_CONTAINER(myMainWindow), myVBox);
@@ -69,7 +69,7 @@ ZLGtkApplicationWindow::ZLGtkApplicationWindow(ZLApplication *application) :
 		gtk_toolbar_set_show_arrow(GTK_TOOLBAR(myFullscreenToolbar.toolbarWidget()), false);
 		gtk_container_add(GTK_CONTAINER(myHandleBox), myFullscreenToolbar.toolbarWidget());
 		gtk_box_pack_start(GTK_BOX(myVBox), GTK_WIDGET(myHandleBox), false, false, 0);
-		ZLGtkSignalUtil::connectSignal(GTK_OBJECT(myHandleBox), "event", GTK_SIGNAL_FUNC(presentHandler), myMainWindow);
+		ZLGtkSignalUtil::connectSignal(G_OBJECT(myHandleBox), "event", G_CALLBACK(presentHandler), myMainWindow);
 	}
 
 	gtk_box_pack_start(GTK_BOX(myVBox), myWindowToolbar.toolbarWidget(), false, false, 0);
@@ -79,8 +79,8 @@ ZLGtkApplicationWindow::ZLGtkApplicationWindow(ZLApplication *application) :
 
 	gtk_widget_add_events(GTK_WIDGET(myMainWindow), GDK_KEY_PRESS_MASK);
 
-	ZLGtkSignalUtil::connectSignal(GTK_OBJECT(myMainWindow), "key_press_event", G_CALLBACK(handleKeyEvent), this);
-	ZLGtkSignalUtil::connectSignal(GTK_OBJECT(myMainWindow), "scroll_event", G_CALLBACK(handleScrollEvent), this);
+	ZLGtkSignalUtil::connectSignal(G_OBJECT(myMainWindow), "key_press_event", G_CALLBACK(handleKeyEvent), this);
+	ZLGtkSignalUtil::connectSignal(G_OBJECT(myMainWindow), "scroll_event", G_CALLBACK(handleScrollEvent), this);
 }
 
 void ZLGtkApplicationWindow::init() {
@@ -98,7 +98,7 @@ void ZLGtkApplicationWindow::init() {
 }
 
 ZLGtkApplicationWindow::~ZLGtkApplicationWindow() {
-	GdkWindowState state = gdk_window_get_state(GTK_WIDGET(myMainWindow)->window);
+	GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(GTK_WIDGET(myMainWindow)));
 	if (state & GDK_WINDOW_STATE_FULLSCREEN) {
 		myWindowStateOption.setValue(FULLSCREEN);
 	} else if (state & GDK_WINDOW_STATE_MAXIMIZED) {
@@ -124,7 +124,7 @@ void ZLGtkApplicationWindow::processAllEvents() {
 
 bool ZLGtkApplicationWindow::handleKeyEventSlot(GdkEventKey *event) {
 	GtkWidget *widget = gtk_window_get_focus(myMainWindow);
-	if ((widget == 0) || !GTK_WIDGET_CAN_FOCUS(widget) || GTK_IS_DRAWING_AREA(widget)) {
+	if ((widget == 0) || !gtk_widget_get_can_focus(widget) || gtk_widget_is_drawable(widget)) {
 		application().doActionByKey(ZLGtkKeyUtil::keyName(event));
 		return true;
 	}
@@ -162,7 +162,7 @@ void ZLGtkApplicationWindow::setFullscreen(bool fullscreen) {
 		return;
 	}
 
-	GdkWindowState state = gdk_window_get_state(GTK_WIDGET(myMainWindow)->window);
+	GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(GTK_WIDGET(myMainWindow)));
 	if (fullscreen) {
 		if ((state & GDK_WINDOW_STATE_MAXIMIZED) == 0) {
 			readPosition();
@@ -188,7 +188,7 @@ void ZLGtkApplicationWindow::setFullscreen(bool fullscreen) {
 
 bool ZLGtkApplicationWindow::isFullscreen() const {
 	return
-		gdk_window_get_state(GTK_WIDGET(myMainWindow)->window) &
+		gdk_window_get_state(gtk_widget_get_window(GTK_WIDGET(myMainWindow))) &
 		GDK_WINDOW_STATE_FULLSCREEN;
 }
 
@@ -229,9 +229,9 @@ void ZLGtkApplicationWindow::setHyperlinkCursor(bool hyperlink) {
 		if (myHyperlinkCursor == 0) {
 			myHyperlinkCursor = gdk_cursor_new(GDK_HAND1);
 		}
-		gdk_window_set_cursor(myViewWidget->area()->window, myHyperlinkCursor);
+		gdk_window_set_cursor(gtk_widget_get_window(myViewWidget->area()), myHyperlinkCursor);
 	} else {
-		gdk_window_set_cursor(myViewWidget->area()->window, 0);
+		gdk_window_set_cursor(gtk_widget_get_window(myViewWidget->area()), 0);
 	}
 }
 
