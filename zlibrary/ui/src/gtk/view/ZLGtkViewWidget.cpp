@@ -154,7 +154,7 @@ bool ZLGtkViewWidget::scrollbarEvent(ZLView::Direction direction, GtkRange *rang
 			onScrollbarPageStep(direction, 1);
 			break;
 	}
-	gtk_widget_send_expose(myArea, gdk_event_new(GDK_EXPOSE));
+	//gtk_widget_send_expose(myArea, gdk_event_new(GDK_EXPOSE));
 	alreadyProcessed = false;
 	return code;
 }
