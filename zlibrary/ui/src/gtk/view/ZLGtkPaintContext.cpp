@@ -27,22 +27,19 @@
 #include "ZLGtkPaintContext.h"
 #include "../image/ZLGtkImageManager.h"
 
-static bool setColor(GdkColor &gdkColor, const ZLColor &zlColor) {
+static bool setColor(GdkRGBA &gdkRGBA, const ZLColor &zlColor) {
+	gdkRGBA.red = zlColor.Red / 255;
+	gdkRGBA.green = zlColor.Green / 255;
+	gdkRGBA.blue = zlColor.Blue / 255;
+	gdkRGBA.alpha = 1;
 	return true;
-	/*
-	gdkColor.red = zlColor.Red * (65535 / 255);
-	gdkColor.green = zlColor.Green * (65535 / 255);
-	gdkColor.blue = zlColor.Blue * (65535 / 255);
-	GdkVisual *visual = gdk_screen_get_system_visual(gdk_screen_get_default());
-	return gdk_colormap_alloc_color(colormap, &gdkColor, false, false);
-	*/
 }
 
 static void setColor(cairo_t *cr, const ZLColor &zlColor) {
 	if (cr != 0) {
-		GdkColor gdkColor;
-		if (setColor(gdkColor, zlColor)) {
-			gdk_cairo_set_source_color(cr, &gdkColor);
+		GdkRGBA gdkRGBA;
+		if (setColor(gdkRGBA, zlColor)) {
+			gdk_cairo_set_source_rgba(cr, &gdkRGBA);
 		}
 	}
 }
@@ -225,12 +222,10 @@ void ZLGtkPaintContext::setColor(ZLColor color, LineStyle style) {
 }
 
 void ZLGtkPaintContext::setFillColor(ZLColor color, FillStyle style) {
-	return;
-	/*
-	if (style == SOLID_FILL) {
+	/*if (style == SOLID_FILL)*/ {
 		::setColor(myFillCairo, color);
-		gdk_gc_set_fill(myFillCairo, GDK_SOLID);
-	} else {
+		cairo_pattern_set_extend (cairo_get_source (myFillCairo), CAIRO_EXTEND_REPEAT);
+	} /*else {
 		gdk_gc_set_fill(myFillCairo, GDK_TILED);
 		if (mySurface != 0) {
 			if (myTileSurface != 0) {
@@ -299,7 +294,6 @@ void ZLGtkPaintContext::drawString(int x, int y, const char *str, int len, bool 
 	if (!g_utf8_validate(str, len, 0)) {
 		return;
 	}
-
 	myAnalysis.level = rtl ? 1 : 0;
 	pango_shape(str, len, &myAnalysis, myString);
 	cairo_move_to(myTextCairo, x, y);
@@ -359,8 +353,9 @@ void ZLGtkPaintContext::drawFilledCircle(int x, int y, int r) {
 void ZLGtkPaintContext::clear(ZLColor color) {
 	myBackColor = color;
 	if (mySurface != 0) {
-		::setColor(myBackCairo, color);
 		cairo_rectangle(myBackCairo, 0, 0, myWidth, myHeight);
+		::setColor(myBackCairo, color);
+		cairo_fill(myBackCairo);
 	}
 }
 

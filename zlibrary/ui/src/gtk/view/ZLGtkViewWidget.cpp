@@ -93,8 +93,8 @@ static void mouseMoved(GtkWidget*, GdkEventMotion *event, gpointer data) {
 }
 
 static void doPaint(GtkWidget *widget, cairo_t *cr, ZLGtkViewWidget *data) {
-	if (!gtk_widget_is_drawable(widget))
-		return;
+	/*if (!gtk_widget_is_drawable(widget))
+		return;*/
 	data->doPaint(cr);
 }
 
@@ -316,8 +316,6 @@ void ZLGtkViewWidget::doPaint(cairo_t *cr)	{
 	gtkContext.updatePixmap(myArea, w, h);
 	view()->paint();
 
-	cleanOriginalPixbuf();
-	cleanRotatedPixbuf();
 	cairo_set_source_surface(cr, gtkContext.pixmap(), 0, 0);
 
 	/*
