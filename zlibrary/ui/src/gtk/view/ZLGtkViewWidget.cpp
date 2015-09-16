@@ -208,7 +208,7 @@ ZLGtkViewWidget::ZLGtkViewWidget(ZLApplication *application, ZLView::Angle initi
 	myOriginalPixbuf = 0;
 	myRotatedPixbuf = 0;
 	gtk_widget_set_double_buffered(myArea, false);
-	gtk_widget_set_events(myArea, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
+	gtk_widget_set_events(myArea, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK|GDK_SCROLL_MASK);
 	ZLGtkSignalUtil::connectSignal(G_OBJECT(myArea), "button_press_event", G_CALLBACK(mousePressed), this);
 	ZLGtkSignalUtil::connectSignal(G_OBJECT(myArea), "button_release_event", G_CALLBACK(mouseReleased), this);
 	ZLGtkSignalUtil::connectSignal(G_OBJECT(myArea), "motion_notify_event", G_CALLBACK(mouseMoved), this);
