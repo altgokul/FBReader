@@ -188,7 +188,7 @@ void ZLGtkApplicationWindow::Toolbar::updatePopupData(GtkMenuToolButton *button,
 	const size_t count = data->count();
 	for (size_t i = 0; i < count; ++i) {
 		GtkWidget *item = gtk_menu_item_new_with_label(data->text(i).c_str());
-		gtk_widget_show_all(item);
+		gtk_widget_show(item);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 		ZLGtkSignalUtil::connectSignal(G_OBJECT(item), "activate", G_CALLBACK(itemActivated), &*data);
 	}

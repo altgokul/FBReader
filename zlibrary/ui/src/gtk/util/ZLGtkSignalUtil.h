@@ -33,7 +33,7 @@ public:
 	static void removeAllSignals();
 
 private:
-	static std::vector<std::pair<GObject*,int> > ourConnectedSignals;
+	static std::vector<std::pair<GObject*, gulong> > ourConnectedSignals;
 
 private:
 	ZLGtkSignalUtil();
