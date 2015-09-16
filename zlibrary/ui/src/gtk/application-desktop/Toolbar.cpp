@@ -103,14 +103,14 @@ GtkToolItem *ZLGtkApplicationWindow::Toolbar::createGtkToolButton(const ZLToolba
 			myPopupIdMap[gtkItem] =
 				popupData.isNull() ? (size_t)-1 : (popupData->id() - 1);
 			gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(gtkItem), gtk_menu_new());
-			/*gtk_menu_tool_button_set_arrow_tooltip(GTK_MENU_TOOL_BUTTON(gtkItem), myGtkToolbar->tooltips, menuButton.popupTooltip().c_str(), 0);*/
+			gtk_menu_tool_button_set_arrow_tooltip_text(GTK_MENU_TOOL_BUTTON(gtkItem), menuButton.popupTooltip().c_str());
 			break;
 		}
 		default:
 			break;
 	}
 
-	//gtk_tool_item_set_tooltip(gtkItem, myGtkToolbar->tooltips, button.tooltip().c_str(), 0);
+	gtk_tool_item_set_tooltip_text(gtkItem, button.tooltip().c_str());
 	ZLGtkSignalUtil::connectSignal(G_OBJECT(gtkItem), "create_menu_proxy", G_CALLBACK(createMenuProxy), myWindow);
 	ZLGtkSignalUtil::connectSignal(G_OBJECT(gtkItem), "clicked", G_CALLBACK(onButtonClicked), myWindow);
 
@@ -130,7 +130,7 @@ void ZLGtkApplicationWindow::Toolbar::addToolbarItem(ZLToolbar::ItemPtr item) {
 					new GtkEntryParameter(*myWindow, parameterItem);
 				myWindow->addVisualParameter(parameterItem.parameterId(), parameter);
 				gtkItem = parameter->createToolItem();
-				//gtk_tool_item_set_tooltip(gtkItem, myGtkToolbar->tooltips, parameterItem.tooltip().c_str(), 0);
+				gtk_tool_item_set_tooltip_text(gtkItem, parameterItem.tooltip().c_str());
 			}
 			break;
 		case ZLToolbar::Item::PLAIN_BUTTON:

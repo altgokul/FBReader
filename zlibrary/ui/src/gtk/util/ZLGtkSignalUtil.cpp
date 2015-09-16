@@ -25,19 +25,16 @@ void ZLGtkSignalUtil::connectSignal(GObject *object, const char *name, void(*fun
 	gulong handlerId = g_signal_connect(object, name, function, data);
 	g_object_ref(object);
 	ourConnectedSignals.push_back(std::make_pair(object, handlerId));
-	//g_warning ("cs: %lu %p %p", handlerId, object, function);
 }
 
 void ZLGtkSignalUtil::connectSignalAfter(GObject *object, const char *name, void(*function)(void), void *data) {
 	gulong handlerId = g_signal_connect_after(object, name, function, data);
 	g_object_ref(object);
 	ourConnectedSignals.push_back(std::make_pair(object, handlerId));
-	//g_warning ("csa: %lu %p %p", handlerId, object, function);
 }
 
 void ZLGtkSignalUtil::removeAllSignals() {
 	for (std::vector<std::pair<GObject*, gulong> >::const_iterator it = ourConnectedSignals.begin(); it != ourConnectedSignals.end(); ++it) {
-		//g_warning ("ras: %lu %p", it->second, it->first);
 		g_signal_handler_disconnect(it->first, it->second);
 		g_object_unref(it->first);
 	}
