@@ -104,7 +104,7 @@ void FBReaderNode::drawCoverReal(ZLPaintContext &context, int vOffset) {
 		width = context.imageWidth(*coverData, w, h, ZLPaintContext::SCALE_REDUCE_SIZE);
 		height = context.imageHeight(*coverData, w, h, ZLPaintContext::SCALE_REDUCE_SIZE);
 	}
-	context.drawImage(hOffset + (w - width) / 2, vOffset + (h + height) / 2, *coverData, width, height, ZLPaintContext::SCALE_FIT_TO_SIZE);
+	context.drawImage(hOffset + (w - width) / 2, vOffset + (h - height) / 2, *coverData, width, height, ZLPaintContext::SCALE_FIT_TO_SIZE);
 }
 
 void FBReaderNode::drawTitle(ZLPaintContext &context, int vOffset) {
