@@ -72,7 +72,28 @@ ZLGtkApplicationWindow::ZLGtkApplicationWindow(ZLApplication *application) :
 		ZLGtkSignalUtil::connectSignal(G_OBJECT(myHandleBox), "event", G_CALLBACK(presentHandler), myMainWindow);
 	}
 
+
+#if 0
 	gtk_box_pack_start(GTK_BOX(myVBox), myWindowToolbar.toolbarWidget(), false, false, 0);
+#else
+	{
+		GtkWidget *revealer = gtk_revealer_new();
+		GtkWidget *button = gtk_toggle_button_new();
+		GtkWidget *image = gtk_image_new_from_icon_name("open-menu-symbolic", GTK_ICON_SIZE_BUTTON);
+
+        gtk_button_set_image(GTK_BUTTON(button), image);
+
+		gtk_widget_set_vexpand (revealer, FALSE);
+		gtk_widget_set_valign (revealer, GTK_ALIGN_START);
+
+		g_object_bind_property (button, "active", revealer, "reveal-child", G_BINDING_DEFAULT);
+
+		gtk_container_add(GTK_CONTAINER(revealer), myWindowToolbar.toolbarWidget());
+		gtk_box_pack_start(GTK_BOX(myVBox), revealer, false, false, 0);
+		gtk_header_bar_pack_start(GTK_HEADER_BAR(myWindowToolbar.headerbarWidget()), button);
+		gtk_window_set_titlebar(myMainWindow, myWindowToolbar.headerbarWidget());
+	}
+#endif
 
 	setPosition();
 	gtk_widget_show_all(GTK_WIDGET(myMainWindow));

@@ -103,6 +103,7 @@ private:
 		Toolbar(ZLGtkApplicationWindow *window);
 
 		GtkWidget *toolbarWidget() const;
+		GtkWidget *headerbarWidget() const;
 
 		void addToolbarItem(ZLToolbar::ItemPtr item);
 		void setToggleButtonState(const ZLToolbar::ToggleButtonItem &button);
@@ -116,6 +117,7 @@ private:
 	private:
 		ZLGtkApplicationWindow *myWindow;
 		GtkToolbar *myGtkToolbar;
+		GtkHeaderBar *myGtkHeaderbar;
 		std::map<const ZLToolbar::Item*,GtkToolItem*> myAbstractToGtk;
 		std::map<GtkToolItem*,ZLToolbar::ItemPtr> myGtkToAbstract;
 		std::map<GtkToolItem*,size_t> myPopupIdMap;

@@ -53,11 +53,19 @@ static bool createMenuProxy(GtkToolItem *toolItem, ZLGtkApplicationWindow *data)
 ZLGtkApplicationWindow::Toolbar::Toolbar(ZLGtkApplicationWindow *window) : myWindow(window) {
 	myGtkToolbar = GTK_TOOLBAR(gtk_toolbar_new());
 	gtk_toolbar_set_style(myGtkToolbar, GTK_TOOLBAR_ICONS);
+	gtk_toolbar_set_icon_size(myGtkToolbar, GTK_ICON_SIZE_BUTTON);
 	//gtk_toolbar_set_tooltips(myGtkToolbar, true);
+
+	myGtkHeaderbar = GTK_HEADER_BAR(gtk_header_bar_new());
+	gtk_header_bar_set_show_close_button(myGtkHeaderbar, true);
 }
 
 GtkWidget *ZLGtkApplicationWindow::Toolbar::toolbarWidget() const {
 	return GTK_WIDGET(myGtkToolbar);
+}
+
+GtkWidget *ZLGtkApplicationWindow::Toolbar::headerbarWidget() const {
+	return GTK_WIDGET(myGtkHeaderbar);
 }
 
 ZLToolbar::AbstractButtonItem &ZLGtkApplicationWindow::Toolbar::buttonItemByWidget(GtkToolItem *gtkButton) {
@@ -83,7 +91,7 @@ GtkToolItem *ZLGtkApplicationWindow::Toolbar::createGtkToolButton(const ZLToolba
 		ZLibrary::ApplicationImageDirectory() + ZLibrary::FileNameDelimiter;
 	GtkWidget *image = gtk_image_new_from_file(
 		(imagePrefix + button.iconName() + ".png").c_str()
-	);
+	);/* gtk_image_new_from_icon_name("go-jump", GTK_ICON_SIZE_BUTTON);*/
 
 	switch (button.type()) {
 		case ZLToolbar::Item::PLAIN_BUTTON:
