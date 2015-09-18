@@ -210,9 +210,9 @@ void ZLTextArea::drawTextLine(Style &style, const ZLTextLineInfo &info, int y, s
 				drawSequence(style, paragraph, wordIterators);
 				style.setTextStyle(it->Style, it->BidiLevel);
 				const int wx = it->XStart;
-				const int wy = it->YEnd - style.elementDescent(element) - style.textStyle()->verticalShift();
+				const int wy = it->YStart - style.elementDescent(element) - style.textStyle()->verticalShift();
 				context().drawImage(
-					hOffset() + wx, vOffset() /*+ wy <-- why was it like this ?*/,
+					hOffset() + wx, vOffset() + wy,
 					*((const ZLTextImageElement&)element).image(),
 					width(), height(), ZLPaintContext::SCALE_REDUCE_SIZE
 				);
