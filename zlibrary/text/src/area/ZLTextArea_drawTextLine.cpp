@@ -212,7 +212,7 @@ void ZLTextArea::drawTextLine(Style &style, const ZLTextLineInfo &info, int y, s
 				const int wx = it->XStart;
 				const int wy = it->YEnd - style.elementDescent(element) - style.textStyle()->verticalShift();
 				context().drawImage(
-					hOffset() + wx, vOffset() + wy,
+					hOffset() + wx, vOffset() /*+ wy <-- why was it like this ?*/,
 					*((const ZLTextImageElement&)element).image(),
 					width(), height(), ZLPaintContext::SCALE_REDUCE_SIZE
 				);
